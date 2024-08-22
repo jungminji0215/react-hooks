@@ -16,6 +16,7 @@ const MyReact = {
   },
 };
 
+// useState
 const useState = (initialValue) => {
   // 값이 초기화되지 않았다면 ,초기값을 할당
   hooks[currentHook] = hooks[currentHook] || initialValue;
@@ -37,9 +38,35 @@ const useState = (initialValue) => {
   return [hooks[currentHook++], setState];
 };
 
+// useEffect
+// 콜백과 , 의존성 배열을 받는다.
+const useEffect = (callback, depArray) => {
+  // 의존성 배열이 없다는 의미
+  const hasNoDeps = !depArray;
+
+  // 현재 위치에 훅이 있다면 그 훅의 의존성 배열을 가져오고 아니면 undefined
+  const prevDeps = hooks[currentHook] ? hooks[currentHook].deps : undefined;
+  const prevCleanup = hooks[currentHook]
+    ? hooks[currentHook].cleanup
+    : undefined;
+
+  // 변경 됐는지 이전 뎁스에서 비교?
+  const hasChangedDeps = prevDeps
+    ? !depArray.every((el, i) => el === prevDeps[i]) // 모두 비교..?
+    : true; // 의존성 배열이 없거나 비어있으면 그냥 true
+
+  if (hasNoDeps || hasChangedDeps) {
+    if (prevCleanup) prevCleanup();
+    const cleanup = callback(); // 지금 콜백의 반환값을 다음에 쓸 수 있도록 넣어주어야한다.
+    hooks[currentHook] = { deps: depArray, cleanup };
+  }
+  currentHook++;
+};
+
 // 이거는 호출할 때 MyReact.useState() 이런식으로도 사용할 수 있음
 // 근데 이게 왜 필요하지?
 MyReact.useState = useState;
+MyReact.useState = useEffect;
 
-export { useState };
+export { useState, useEffect };
 export default MyReact;

@@ -1,4 +1,4 @@
-import MyReact, { useState } from "./React.mjs";
+import MyReact, { useState, useEffect } from "./React.mjs";
 
 function ExampleComponent() {
   const [count, setCount] = useState(0);
